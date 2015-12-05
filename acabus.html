@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf8">
+	<style type="text/css">
+
+	.clearfix:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+	.container {
+		transform: scaleY(-1);
+		width: 300px;
+	}
+	.container + .container {
+		margin-left: 20px;
+	}
+	.row {
+		clear: both;
+	}
+	.item {
+		height: 50px;
+		background: red;
+		float: left;
+		margin: 2px;
+		box-sizing: border-box;
+	}
+
+	.hidden {
+		display: none;
+	}
+
+	</style>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript">
+
+		function floor(x) {
+			return Math.floor(x);	
+		}
+
+		function sum(start, n, fn) {
+			var sum = 0;
+			for(var i = 0; i < n; i++) {
+				sum += fn(i + start);
+			}
+			return sum;
+		}
+		function product(start, n, fn) {
+			var product = 1;
+			for(var i = 0; i < n; i++) {
+				product *= fn(i + start);
+			}
+			return product;
+		}
+
+		function toArray(arrayLike) {
+			return Array.prototype.slice.call(arrayLike);
+		}
+
+		function curry(fn) {
+			return (function curried(chainArgs) {
+				return function() {
+					var args = chainArgs.concat(toArray(arguments));
+					if(args.length >= fn.length) {
+						return fn.apply(this, args);
+					} else {
+						return curried(args);
+					}
+				}
+			})([]);
+		}
+
+		function count(n) {
+			var array = [];
+			for(var i = 0; i < n; i++) {
+				array.push(i);
+			}
+
+			return array;
+		}
+	</script>
+</head>
+<body>
+<!-- 
+<div class="container clearfix" id="a"></div>
+<div class="container clearfix" id="b"></div>
+<div class="container clearfix" id="r"></div>
+
+<div>
+	N = <input type="number" value="1" style="width: 100px;"></input>
+	<button>Add</button>
+</div> -->
+
+<div id="input" class="hidden">
+	<div></div>
+	<input type="text"> <button>Nästa</button>
+</div>
+<div id="output" class="hidden">
+	
+</div>
+
+<script type="text/javascript">
+
+function inputMode() {
+	$input.removeClass('hidden');
+	$output.addClass('hidden');
+}
+function outputMode() {
+	$input.addClass('hidden');
+	$output.removeClass('hidden');
+}
+
+var $input = $('#input');
+var $output = $('#output');
+var chain = Promise.resolve();
+function ask(question) {
+	return (chain = chain.then(function() {
+		return new Promise(function(resolve, reject) {
+			$input.find('div').text(question);
+			var input = $input.find('input');
+			input.val('');
+			var button = $input.find('button');
+			input.on('keydown', function handler(e) {
+				//Submit on enter
+				if(e.keyCode == 13) {
+					input.off('keydown', handler);
+					resolve(input.val());
+				}
+			});
+			button.on('click', function handler() {
+				button.off('click', handler);
+				resolve(input.val());
+			});
+		});
+	}));
+}
+
+function render(k, container) {
+	container.empty();
+
+	var biggestM = m.slice().sort((a, b) => b - a)[0];
+	var width = floor((1/biggestM/2)*100) + '%';
+
+	m.forEach(function(n, index) {
+		if(n == 0) return;
+
+		var row = $('<div class="row">').appendTo(container);
+		for(var i = 0; i < n - 1; i++) {
+			var item = $('<div class="item">').appendTo(row).css({
+				width: width
+			});
+			if(i >= k[index]) {
+				item.css({
+					float: 'right'
+				})
+			}
+		}
+	});
+
+}
+
+// render(k, $('#a'));
+// render(lambda, $('#b'));
+// render(k, $('#r'));
+
+var input = $('input[type="number"]');
+
+$('button').click(function() {
+	var N = parseInt(input.val());
+	var lambda = kify(N);
+	k = [0, 1, 2, 3, 4, 5].map(kHat(k)(lambda));
+	render(k, $('#r'));
+});
+
+</script>
+
+<script type="text/javascript">
+
+var equations = {
+	A: function(m) {
+		return function(k) {
+			var n = k.length - 1;
+			return sum(1, n, i => k[i] * product(1, i - 1, t => m[t]));
+		};
+	},
+	k: function(m) {
+		return function(A) {
+			return function k(n) {
+				if(n == 0) return 0;
+				return ((A - sum(1, n - 1, i => k(i) * product(1, i - 1, t => m[t]))) / product(1, n - 1, i => m[i])) % m[n];
+			};	
+		};
+	},
+	a: function(m) {
+		return function(k) {
+			return function(lambda) {
+				return function a(n) {
+					if(n == 0) return 0;
+					if(n == 1) return k[n] + lambda[n];
+					return k[n] + lambda[n] + floor(a(n - 1) / m[n - 1]);
+				};
+			};
+		};
+	},
+	kHat: function(m) {
+		return function(k) {
+			return function kHat(lambda) {
+				var a = equations.a(m)(k)(lambda);
+				return function(n) {
+					return a(n) % m[n];
+					// return a(n) % product(1, n, i => m[i]);
+				};	
+			};
+		};
+	}
+};
+
+(function() {
+	inputMode();
+	ask('Antal rader ?').then(parseInt)
+	.then(function(R) {
+		return Promise.all(count(R).map(function(i) {
+			return Promise.all([
+				ask('Rad ' + (i + 1) + ', vänster ?').then(parseInt),
+				ask('Rad ' + (i + 1) + ', höger ?').then(parseInt)
+			]);
+		}));
+	}).then(function(rows) {
+		return ask('Talet N ?').then(parseInt).then(function(N) {
+			return {
+				N: N,
+				R: rows.length,
+				rows: rows
+			}			
+		});
+	})
+	.then(function(input) {
+		outputMode();
+		console.log(input);
+	});
+
+})();
+
+
+function calculate() {
+
+}
+
+
+
+
+
+var A = 37;
+var m = [0, 5, 3, 10];
+// var m = [0, 3, 3, 3];
+// var k = [0, 3, 1, 2];
+var k = [0, 0, 0, 0];
+
+var kify = function(m) {
+	return function(A)  {
+		var k = equations.k(m);
+
+		return [0, 1, 2, 3, 4, 5].map(k(A));
+	};
+}(m);
+
+// var N = 1;
+// var N = 9;
+// var lambda = kify(N);
+
+// var result = [0, 1, 2, 3, 4, 5].map(kHat);
+
+var a = equations.a(m);
+
+var kHat = equations.kHat(m);
+
+</script>
+
+</body>
+</html>
