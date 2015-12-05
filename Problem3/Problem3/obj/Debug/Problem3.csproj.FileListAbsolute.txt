@@ -4,3 +4,9 @@ c:\users\john\documents\visual studio 2013\Projects\Problem3\Problem3\bin\Debug\
 c:\users\john\documents\visual studio 2013\Projects\Problem3\Problem3\obj\Debug\Problem3.csprojResolveAssemblyReference.cache
 c:\users\john\documents\visual studio 2013\Projects\Problem3\Problem3\obj\Debug\Problem3.exe
 c:\users\john\documents\visual studio 2013\Projects\Problem3\Problem3\obj\Debug\Problem3.pdb
+D:\GitHub\PO-2015-problem-3\Problem3\Problem3\bin\Debug\Problem3.exe.config
+D:\GitHub\PO-2015-problem-3\Problem3\Problem3\obj\Debug\Problem3.exe
+D:\GitHub\PO-2015-problem-3\Problem3\Problem3\obj\Debug\Problem3.pdb
+D:\GitHub\PO-2015-problem-3\Problem3\Problem3\bin\Debug\Problem3.exe
+D:\GitHub\PO-2015-problem-3\Problem3\Problem3\bin\Debug\Problem3.pdb
+D:\GitHub\PO-2015-problem-3\Problem3\Problem3\obj\Debug\Problem3.csprojResolveAssemblyReference.cache
