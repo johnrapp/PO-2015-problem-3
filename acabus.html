@@ -50,24 +50,6 @@
 			return product;
 		}
 
-		function toArray(arrayLike) {
-			return Array.prototype.slice.call(arrayLike);
-		}
-
-		function curry(fn) {
-			return (function curried(chainArgs) {
-				return function() {
-					var args = chainArgs.concat(toArray(arguments));
-					if(args.length >= fn.length) {
-						return fn.apply(this, args);
-					} else {
-						return curried(args);
-					}
-				}
-			})([]);
-		}
-
-
 	</script>
 </head>
 <body>
@@ -124,8 +106,6 @@ var equations = {
 
 var A = 37;
 var m = [0, 5, 3, 10];
-// var m = [0, 3, 3, 3];
-// var k = [0, 3, 1, 2];
 var k = [0, 0, 0, 0];
 
 var kify = function(m) {
@@ -135,12 +115,6 @@ var kify = function(m) {
 		return [0, 1, 2, 3, 4, 5].map(k(A));
 	};
 }(m);
-
-// var N = 1;
-// var N = 9;
-// var lambda = kify(N);
-
-// var result = [0, 1, 2, 3, 4, 5].map(kHat);
 
 var a = equations.a(m);
 
@@ -175,8 +149,6 @@ function render(k, container) {
 
 }
 
-// render(k, $('#a'));
-// render(lambda, $('#b'));
 render(k, $('#r'));
 
 var input = $('input[type="number"]');
