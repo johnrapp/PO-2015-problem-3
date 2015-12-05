@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
-	<meta charset="utf8">
+	<title></title>	
 	<style type="text/css">
 
 	.clearfix:after {
@@ -26,10 +25,6 @@
 		float: left;
 		margin: 2px;
 		box-sizing: border-box;
-	}
-
-	.hidden {
-		display: none;
 	}
 
 	</style>
@@ -72,18 +67,11 @@
 			})([]);
 		}
 
-		function count(n) {
-			var array = [];
-			for(var i = 0; i < n; i++) {
-				array.push(i);
-			}
 
-			return array;
-		}
 	</script>
 </head>
 <body>
-<!-- 
+
 <div class="container clearfix" id="a"></div>
 <div class="container clearfix" id="b"></div>
 <div class="container clearfix" id="r"></div>
@@ -91,90 +79,7 @@
 <div>
 	N = <input type="number" value="1" style="width: 100px;"></input>
 	<button>Add</button>
-</div> -->
-
-<div id="input" class="hidden">
-	<div></div>
-	<input type="text"> <button>Nästa</button>
 </div>
-<div id="output" class="hidden">
-	
-</div>
-
-<script type="text/javascript">
-
-function inputMode() {
-	$input.removeClass('hidden');
-	$output.addClass('hidden');
-}
-function outputMode() {
-	$input.addClass('hidden');
-	$output.removeClass('hidden');
-}
-
-var $input = $('#input');
-var $output = $('#output');
-var chain = Promise.resolve();
-function ask(question) {
-	return (chain = chain.then(function() {
-		return new Promise(function(resolve, reject) {
-			$input.find('div').text(question);
-			var input = $input.find('input');
-			input.val('');
-			var button = $input.find('button');
-			input.on('keydown', function handler(e) {
-				//Submit on enter
-				if(e.keyCode == 13) {
-					input.off('keydown', handler);
-					resolve(input.val());
-				}
-			});
-			button.on('click', function handler() {
-				button.off('click', handler);
-				resolve(input.val());
-			});
-		});
-	}));
-}
-
-function render(k, container) {
-	container.empty();
-
-	var biggestM = m.slice().sort((a, b) => b - a)[0];
-	var width = floor((1/biggestM/2)*100) + '%';
-
-	m.forEach(function(n, index) {
-		if(n == 0) return;
-
-		var row = $('<div class="row">').appendTo(container);
-		for(var i = 0; i < n - 1; i++) {
-			var item = $('<div class="item">').appendTo(row).css({
-				width: width
-			});
-			if(i >= k[index]) {
-				item.css({
-					float: 'right'
-				})
-			}
-		}
-	});
-
-}
-
-// render(k, $('#a'));
-// render(lambda, $('#b'));
-// render(k, $('#r'));
-
-var input = $('input[type="number"]');
-
-$('button').click(function() {
-	var N = parseInt(input.val());
-	var lambda = kify(N);
-	k = [0, 1, 2, 3, 4, 5].map(kHat(k)(lambda));
-	render(k, $('#r'));
-});
-
-</script>
 
 <script type="text/javascript">
 
@@ -215,42 +120,7 @@ var equations = {
 			};
 		};
 	}
-};
-
-(function() {
-	inputMode();
-	ask('Antal rader ?').then(parseInt)
-	.then(function(R) {
-		return Promise.all(count(R).map(function(i) {
-			return Promise.all([
-				ask('Rad ' + (i + 1) + ', vänster ?').then(parseInt),
-				ask('Rad ' + (i + 1) + ', höger ?').then(parseInt)
-			]);
-		}));
-	}).then(function(rows) {
-		return ask('Talet N ?').then(parseInt).then(function(N) {
-			return {
-				N: N,
-				R: rows.length,
-				rows: rows
-			}			
-		});
-	})
-	.then(function(input) {
-		outputMode();
-		console.log(input);
-	});
-
-})();
-
-
-function calculate() {
-
 }
-
-
-
-
 
 var A = 37;
 var m = [0, 5, 3, 10];
@@ -275,6 +145,48 @@ var kify = function(m) {
 var a = equations.a(m);
 
 var kHat = equations.kHat(m);
+
+</script>
+
+
+<script type="text/javascript">
+
+function render(k, container) {
+	container.empty();
+
+	var biggestM = m.slice().sort((a, b) => b - a)[0];
+	var width = floor((1/biggestM/2)*100) + '%';
+
+	m.forEach(function(n, index) {
+		if(n == 0) return;
+
+		var row = $('<div class="row">').appendTo(container);
+		for(var i = 0; i < n - 1; i++) {
+			var item = $('<div class="item">').appendTo(row).css({
+				width: width
+			});
+			if(i >= k[index]) {
+				item.css({
+					float: 'right'
+				})
+			}
+		}
+	});
+
+}
+
+// render(k, $('#a'));
+// render(lambda, $('#b'));
+render(k, $('#r'));
+
+var input = $('input[type="number"]');
+
+$('button').click(function() {
+	var N = parseInt(input.val());
+	var lambda = kify(N);
+	k = [0, 1, 2, 3, 4, 5].map(kHat(k)(lambda));
+	render(k, $('#r'));
+});
 
 </script>
 
